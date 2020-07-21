@@ -25,7 +25,7 @@ def _Add(path):
 
 def _Commit(msg):
     cmd = ['git', 'commit', '-m', msg]
-    _GitCmd(cmd)
+    return _GitCmd(cmd)
 
 
 def _GenerateCommitMsg(msg_tags, msg):
@@ -85,9 +85,8 @@ def Handle(commit_option, version_file_path):
     logging.debug('commit msg: ' + commit_msg)
 
     _Add(version_file_path)
-    _Commit(commit_msg)
-
-    print('commit: ' + commit_msg)
+    console_msg = _Commit(commit_msg)
+    print(console_msg)
 
 
 # if __name__ == "__main__":
