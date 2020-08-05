@@ -36,13 +36,13 @@ def QVersion(tags, commit_type, version_file_path):
         tag += '\t(%d) ' % nums[index]
         index += 1
         tags_index_tagged.append((tag, index))
-
+    print(tags_index_tagged)
     current_version = version_handler.CurrentVersion(version_file_path)
 
-    if commit_type == 'modify' or commit_type == 'bugfix':
-        index = -1
-    elif commit_type == 'feature':
+    index = -1
+    if commit_type == 'feature' or commit_type == 'refactor' :
         index = -2
+
     question = inquirer.List('version_index',
                              message='请选择要增加的版本号(当前: %s)' % current_version,
                              choices=tags_index_tagged,

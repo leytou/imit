@@ -3,7 +3,7 @@
 
 """
 Usage:
-    imit.py [-m|-b|-f|-r] [-1|-2|-3|-4] [-M <msg>] [-h|--help] [--log_level=<log_level>]
+    imit.py [-m|-b|-f|-R|-r] [-1|-2|-3|-4] [-M <msg>] [-h|--help] [--log_level=<log_level>]
     imit.py config
 
 Options:
@@ -11,6 +11,7 @@ Options:
     -m                          set commit type: modify
     -b                          set commit type: bugfix
     -f                          set commit type: feature
+    -R                          set commit type: refactor
     -r                          set commit type: revert
     -1                          1st version number +1
     -2                          2nd version number +1
@@ -90,7 +91,8 @@ def main():
     commit_types = {'-m': 'modify',
                     '-b': 'bugfix',
                     '-f': 'feature',
-                    '-r': 'revert'}
+                    '-R': 'refactor',
+                    '-r': 'revert',}
     version_file_path = 'version.properties'
 
     args = docopt.docopt(__doc__)
