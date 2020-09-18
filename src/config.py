@@ -11,7 +11,7 @@ group = 'user'
 
 
 def Write(key, value):
-    config = configparser.ConfigParser()
+    config = configparser.RawConfigParser()
     if os.path.exists(config_path):
         config.read(config_path, encoding="utf-8")
     if group not in config.sections():
@@ -23,7 +23,7 @@ def Write(key, value):
 
 
 def Get(key):
-    config = configparser.ConfigParser()
+    config = configparser.RawConfigParser()
     if not os.path.exists(config_path):
         return ''
 
