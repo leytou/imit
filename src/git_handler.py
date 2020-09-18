@@ -54,7 +54,7 @@ def GetGitRootPath(path):
         return ''
 
     git_file = Path(path+'/.git')
-    if not (git_file.exists() and git_file.is_dir()):
+    if not (git_file.exists()):
         return GetGitRootPath(os.path.dirname(path))
     else:
         return path
