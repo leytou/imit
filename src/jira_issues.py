@@ -12,7 +12,7 @@ import des
 
 jira_issues_api = 'https://jira.cvte.com/issues/?jql='
 
-jira_filter = 'assignee = currentUser() AND type not in (新需求) AND resolution = Unresolved order by lastViewed DESC',
+jira_filter = 'assignee = currentUser() AND resolution = Unresolved order by lastViewed DESC',
 
 issues_config_key = 'issues'
 username_config_key = 'username'
