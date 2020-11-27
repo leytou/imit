@@ -18,6 +18,7 @@ Options:
     -3                          3rd version number +1
     -4                          4th version number +1
     -M <msg>                    set commit message
+    <msg>                       set commit message easily
     --log_level=<log_level>     set log level: notset,debug,info,warn,error,fatal,critical
 """
 
@@ -99,8 +100,6 @@ def main():
     args = docopt.docopt(__doc__)
     InitLogger(args)
     logging.debug(args)
-
-    print(args)
 
     if args['config']:
         Config()
