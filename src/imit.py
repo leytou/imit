@@ -3,7 +3,7 @@
 
 """
 Usage:
-    imit.py [-m|-b|-f|-R|-r] [-1|-2|-3|-4] [-M <msg>] [-h|--help] [--log_level=<log_level>]
+    imit.py [-m|-b|-f|-R|-r] [-1|-2|-3|-4] [-M <msg>|<msg>] [-h|--help] [--log_level=<log_level>]
     imit.py config
 
 Options:
@@ -39,6 +39,7 @@ from pprint import pprint
 def InitLogger(args):
     log_level = args["--log_level"]
     if log_level is None:
+
         log_level = "info"
 
     logging.basicConfig(level=logging._nameToLevel[log_level.upper()],
@@ -92,12 +93,14 @@ def main():
                     '-b': 'bugfix',
                     '-f': 'feature',
                     '-R': 'refactor',
-                    '-r': 'revert',}
+                    '-r': 'revert', }
     version_file_path = 'version.properties'
 
     args = docopt.docopt(__doc__)
     InitLogger(args)
     logging.debug(args)
+
+    print(args)
 
     if args['config']:
         Config()

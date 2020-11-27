@@ -26,7 +26,7 @@ def _GetVersionIndex(args):
 
 
 def _GetCommitMsg(args):
-    return args['-M']
+    return args['-M'] if args['-M'] else args['<msg>']
 
 
 def UpdateOptionFromArgs(commit_option, args, commit_types):
