@@ -3,8 +3,8 @@
 
 """
 Usage:
-    imit.py [-m|-b|-f|-R|-r] [-1|-2|-3|-4] [-M <msg>|<msg>] [-h|--help] [--log_level=<log_level>]
     imit.py config
+    imit.py [-m|-b|-f|-R|-r] [-1|-2|-3|-4] [-M <msg>|<msg>] [-h|--help] [--log_level=<log_level>]
 
 Options:
     -h,--help                   show usage
