@@ -18,7 +18,7 @@ def Write(key, value):
         config.add_section(group)
 
     config.set(group, key, value)
-    with open(config_path, 'w') as configfile:
+    with open(config_path, 'w', encoding="utf-8") as configfile:
         config.write(configfile)
 
 
