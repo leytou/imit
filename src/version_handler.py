@@ -37,7 +37,7 @@ def _IncreaseVersion(nums_list, index):
 
 
 def _ToFile(version_dict, version_file_path):
-    with open(version_file_path, 'w') as file:
+    with open(version_file_path, 'w', newline='\n') as file:
         for key in version_dict:
             line = '%s=%s\n' % (key, version_dict[key])
             file.write(line)

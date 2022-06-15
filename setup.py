@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='imit',
-    version="1.0.11",
+    version="1.0.12",
     description="提供交互或命令行的形式规范地提交git commit",
     long_description="""提供交互或命令行的形式规范地提交git commit""",
     keywords='python commit git',
