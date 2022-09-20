@@ -51,6 +51,9 @@ def UpdateOptionFromInquirer(commit_option, version_file_path, commit_types):
 
     # guess type by commit_msg:
     if 'commit_msg' in commit_option:
+        for key_word in ['添加']:
+            if key_word in commit_option['commit_msg']:
+                guess_type = 'feature'
         for key_word in ['bug', '修复']:
             if key_word in commit_option['commit_msg']:
                 guess_type = 'bugfix'

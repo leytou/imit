@@ -22,4 +22,5 @@
 
 ## 自动选择默认信息的策略
 - commit_msg 中如果含有['修复','bug'], 则设置默认commit_type为bugfix
+- commit_msg 中如果含有['添加'], 则设置默认commit_type为feature
 - commit_type为feature或者refactor时，设置默认version_index为-2
