@@ -19,11 +19,12 @@ def _MsgValidation(answers, current):
     return True
 
 
-def QType(types):
+def QType(types, guess_type):
     question = inquirer.List('commit_type',
                              message='请选择commit类型',
                              choices=types,
-                             carousel=True
+                             carousel=True,
+                             default=guess_type
                              )
     return inquirer.prompt([question])
 
@@ -49,6 +50,7 @@ def QVersion(tags, commit_type, version_file_path):
                              carousel=True,
                              default=tags_index_tagged[index][1]
                              )
+    print(inquirer.prompt([question]))
     return inquirer.prompt([question])
 
 

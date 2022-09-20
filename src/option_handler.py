@@ -49,8 +49,18 @@ def UpdateOptionFromInquirer(commit_option, version_file_path, commit_types):
     version_dict = version_handler.TagNumDict(version_file_path)
     logging.debug('tag num dict: ' + str(version_dict))
 
+    # guess type by commit_msg:
+    if 'commit_msg' in commit_option:
+        for key_word in ['添加']:
+            if key_word in commit_option['commit_msg']:
+                guess_type = 'feature'
+        for key_word in ['bug', '修复']:
+            if key_word in commit_option['commit_msg']:
+                guess_type = 'bugfix'
+                pass
+
     if 'commit_type' not in commit_option:
-        answer = commit_inquirer.QType(list(commit_types.values()))
+        answer = commit_inquirer.QType(list(commit_types.values()), guess_type)
         commit_option.update(answer)
         logging.debug('option : '+str(answer))
 
