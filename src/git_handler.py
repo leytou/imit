@@ -76,8 +76,9 @@ def UnstaedFiles():
 
 
 def Handle(commit_option, version_file_path):
-    version_str_updated = version_handler.Handle(
-        commit_option['version_index'], version_file_path)
+    version_processor = version_handler.VersionProcessor()
+    version_str_updated = version_processor.IncreaseVersionAndSave(
+        commit_option['version_index'])
 
     msg_tags = [commit_option['commit_type'],
                 version_str_updated, commit_option['jira_id']]

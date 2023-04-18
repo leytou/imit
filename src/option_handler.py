@@ -46,7 +46,8 @@ def UpdateOptionFromArgs(commit_option, args, commit_types):
 
 
 def UpdateOptionFromInquirer(commit_option, version_file_path, commit_types):
-    version_dict = version_handler.TagNumDict(version_file_path)
+    version_processor = version_handler.VersionProcessor()
+    version_dict = version_processor.TagNumDict()
     logging.debug('tag num dict: ' + str(version_dict))
 
     if 'commit_type' not in commit_option:
