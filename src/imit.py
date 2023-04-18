@@ -34,6 +34,8 @@ import config
 import git_handler
 import option_handler
 import commit_inquirer
+import version_handler
+import fnmatch
 from pprint import pprint
 
 
@@ -60,7 +62,7 @@ def GetCommitOption(args, commit_types, version_file_path):
     return commit_option
 
 
-def EnvCheck(version_file_path):
+def EnvCheck():
     if sys.version_info < (3, 7):  # 3.7后dict默认为有序
         print('Please run imit with greater than python3.7.')
         exit(-1)
@@ -71,10 +73,6 @@ def EnvCheck(version_file_path):
         exit(-1)
 
     os.chdir(git_root_path)
-
-    if not os.path.exists(version_file_path):
-        print('File %s not found in current path.' % version_file_path)
-        exit(-1)
 
     if not git_handler.StagedFiles():
         print('No staged file, exit commit.')
@@ -95,7 +93,6 @@ def main():
                     '-f': 'feature',
                     '-R': 'refactor',
                     '-r': 'revert', }
-    version_file_path = 'version.properties'
 
     args = docopt.docopt(__doc__)
     InitLogger(args)
@@ -106,8 +103,10 @@ def main():
         print('Username and password are encrypted and stored in file ~/.imitrc.ini')
         exit(0)
 
-    EnvCheck(version_file_path)
+    EnvCheck()
 
+    version_processor = version_handler.VersionProcessor()
+    version_file_path = version_processor.file_path
     commit_option = GetCommitOption(args, commit_types, version_file_path)
     logging.debug('commit option: ' + str(commit_option))
 

@@ -30,17 +30,18 @@ def QType(types):
 
 def QVersion(tags, commit_type, version_file_path):
     tags_index_tagged = []
-    nums = list(version_handler.TagNumDict(version_file_path).values())
+    version_processor = version_handler.VersionProcessor()
+    nums = list(version_processor.TagNumDict().values())
     index = 0
     for tag in tags:
         tag += '\t(%d) ' % nums[index]
         index += 1
         tags_index_tagged.append((tag, index))
-    print(tags_index_tagged)
-    current_version = version_handler.CurrentVersion(version_file_path)
+    # print(tags_index_tagged)
+    current_version = version_processor.CurrentVersion()
 
     index = -1
-    if commit_type == 'feature' or commit_type == 'refactor' :
+    if commit_type == 'feature' or commit_type == 'refactor':
         index = -2
 
     question = inquirer.List('version_index',
