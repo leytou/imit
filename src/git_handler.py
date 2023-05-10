@@ -23,9 +23,10 @@ def _Add(path):
     _GitCmd(cmd)
 
 
-def _Commit(msg):
+def Commit(msg):
     cmd = ['git', 'commit', '-m', msg]
-    return _GitCmd(cmd)
+    console_msg = _GitCmd(cmd)
+    print(console_msg)
 
 
 def _GenerateCommitMsg(msg_tags, msg):
@@ -86,11 +87,9 @@ def Handle(commit_option, version_file_path):
     logging.debug('commit msg: ' + commit_msg)
 
     _Add(version_file_path)
-    console_msg = _Commit(commit_msg)
-    print(console_msg)
+    Commit(commit_msg)
 
-
-# if __name__ == "__main__":
+    # if __name__ == "__main__":
     # _Add('test.py')
     # print(IsFileChanged('version.properties'))
     # _Commit('ABCDQWE')

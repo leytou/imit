@@ -43,6 +43,18 @@ def _IncreaseVersion(nums_list, index):
         nums_list[i] = 0
 
 
+class NullFile:
+    def __init__(self, path):
+        self.path = path
+
+    def TagNumDict(self):
+        tag_num_dict = {}
+        return tag_num_dict
+
+    def WriteToFile(self, version_dict):
+        pass
+
+
 class PropertiesFile:
     def __init__(self, path):
         self.path = path
@@ -121,11 +133,11 @@ class VersionProcessor:
     def __init__(self):
         files = ['version.properties', '*.podspec']
         self.file_path = _FindVersionFile('.', files)
-        if self.file_path == '':
-            print('Version file %s not found in current path.' % files)
-            exit(1)
         logging.debug('version file path: ' + self.file_path)
-        if self.file_path.endswith('.properties'):
+        if self.file_path == '':
+            # print('Version file %s not found in current path.' % files)
+            self.version_file = NullFile(self.file_path)
+        elif self.file_path.endswith('.properties'):
             self.version_file = PropertiesFile(self.file_path)
         elif self.file_path.endswith('.podspec'):
             self.version_file = PodspecFile(self.file_path)
