@@ -51,6 +51,13 @@ def InitLogger(args):
 
 def GetCommitOption(args, commit_types, version_file_path):
     commit_option = {}
+
+    # 没有版本文件，跳过下面这些过程
+    if version_file_path == '':
+        commit_option['commit_type'] = ""
+        commit_option['version_index'] = 0
+        commit_option['jira_id'] = 0
+
     # 如果版本文件已修改过，则不再修改版本号(index设为0)
     if version_file_path in git_handler.AllChangedFiles():
         commit_option['version_index'] = 0
@@ -110,7 +117,13 @@ def main():
     commit_option = GetCommitOption(args, commit_types, version_file_path)
     logging.debug('commit option: ' + str(commit_option))
 
-    git_handler.Handle(commit_option, version_file_path)
+    # 没有版本文件，使用普通的git commit
+    if version_file_path == '':
+        logging.warning(
+            'Version file not found in current path, use plain commit')
+        git_handler.Commit(commit_option["commit_msg"])
+    else:
+        git_handler.Handle(commit_option, version_file_path)
 
 
 if __name__ == "__main__":
