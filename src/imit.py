@@ -4,19 +4,19 @@
 """
 Usage:
     imit.py config
-    imit.py [-m|-b|-f|-R|-r|-d|-s|-p|-t|-c] [-1|-2|-3|-4] [-M <msg>|<msg>] [-h|--help] [--log_level=<log_level>]
+    imit.py [-f|-b|-c|-R|-t|-p|-d|-s|-r] [-1|-2|-3|-4] [-M <msg>|<msg>] [-h|--help] [--log_level=<log_level>]
 
 Options:
     -h,--help                   show usage
-    -b                          set commit type: bugfix
     -f                          set commit type: feature
+    -b                          set commit type: bugfix
+    -c                          set commit type: chore
     -R                          set commit type: refactor
-    -r                          set commit type: revert
+    -t                          set commit type: test
+    -p                          set commit type: perf
     -d                          set commit type: doc
     -s                          set commit type: style
-    -p                          set commit type: perf
-    -t                          set commit type: test
-    -c                          set commit type: chore
+    -r                          set commit type: revert
     -1                          1st version number +1
     -2                          2nd version number +1
     -3                          3rd version number +1
@@ -92,15 +92,15 @@ def Config():
 
 
 def main():
-    commit_types = {'-b': 'bugfix',
-                    '-f': 'feature',
+    commit_types = {'-f': 'feature',
+                    '-b': 'bugfix',
+                    '-c': 'chore',
                     '-R': 'refactor',
-                    '-r': 'revert',
+                    '-t': 'test',
+                    '-p': 'perf',
                     '-d': 'doc',
                     '-s': 'style',
-                    '-p': 'perf',
-                    '-t': 'test',
-                    '-c': 'chore', }
+                    '-r': 'revert', }
 
     args = docopt.docopt(__doc__)
     InitLogger(args)
