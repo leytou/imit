@@ -135,9 +135,9 @@ def QJiraId(from_server=False):
         return answer
 
 
-def QMsg():
-    question = inquirer.Text('commit_msg',
-                             message='请输入commit message',
+def QMsg(field):
+    question = inquirer.Text('commit_%s' % field,
+                             message='请输入commit %s' % field,
                              validate=_MsgValidation
                              )
     return inquirer.prompt([question])

@@ -28,14 +28,19 @@ def _Commit(msg):
     return _GitCmd(cmd)
 
 
-def _GenerateCommitMsg(msg_tags, msg):
+def _GenerateCommitMsg(msg_tags, msg_title, msg_fields):
     commit_msg = ''
     for i in msg_tags:
         if i:
             tag = '[%s]' % i
             commit_msg += tag
 
-    commit_msg += ' ' + msg
+    commit_msg += ' ' + msg_title
+
+    for key, value in msg_fields.items():
+        if value:
+            field = '%s: %s' % (key, value)
+            commit_msg += "\n" + field
     return commit_msg
 
 
@@ -82,7 +87,7 @@ def Handle(commit_option, version_file_path):
 
     msg_tags = [commit_option['commit_type'],
                 version_str_updated, commit_option['jira_id']]
-    commit_msg = _GenerateCommitMsg(msg_tags, commit_option['commit_msg'])
+    commit_msg = _GenerateCommitMsg(msg_tags, commit_option['commit_title'], {"why": commit_option['commit_why'], "how": commit_option['commit_how'], "influence": commit_option['commit_influence']})
     logging.debug('commit msg: ' + commit_msg)
 
     _Add(version_file_path)

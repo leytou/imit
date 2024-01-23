@@ -38,9 +38,9 @@ def UpdateOptionFromArgs(commit_option, args, commit_types):
     if version_index > 0 and 'version_index' not in commit_option:
         commit_option['version_index'] = version_index
 
-    commit_msg = _GetCommitMsg(args)
-    if commit_msg and 'commit_msg' not in commit_option:
-        commit_option['commit_msg'] = commit_msg
+    commit_title = _GetCommitMsg(args)
+    if commit_title and 'commit_title' not in commit_option:
+        commit_option['commit_title'] = commit_title
 
     logging.debug('option from args: ' + str(commit_option))
 
@@ -66,7 +66,25 @@ def UpdateOptionFromInquirer(commit_option, version_file_path, commit_types):
         commit_option.update(answer)
         logging.debug('option : '+str(answer))
 
-    if 'commit_msg' not in commit_option:
-        answer = commit_inquirer.QMsg()
+    if 'commit_title' not in commit_option:
+        answer = commit_inquirer.QMsg("title")
+        commit_option.update(answer)
+        logging.debug('option : '+str(answer))
+
+    if commit_option['commit_type'] in ('docs', 'test') :
+        return
+
+    if 'commit_why' not in commit_option:
+        answer = commit_inquirer.QMsg("why")
+        commit_option.update(answer)
+        logging.debug('option : '+str(answer))
+
+    if 'commit_how' not in commit_option:
+        answer = commit_inquirer.QMsg("how")
+        commit_option.update(answer)
+        logging.debug('option : '+str(answer))
+
+    if 'commit_influence' not in commit_option:
+        answer = commit_inquirer.QMsg("influence")
         commit_option.update(answer)
         logging.debug('option : '+str(answer))
