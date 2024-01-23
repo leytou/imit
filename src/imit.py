@@ -4,15 +4,19 @@
 """
 Usage:
     imit.py config
-    imit.py [-m|-b|-f|-R|-r] [-1|-2|-3|-4] [-M <msg>|<msg>] [-h|--help] [--log_level=<log_level>]
+    imit.py [-m|-b|-f|-R|-r|-d|-s|-p|-t|-c] [-1|-2|-3|-4] [-M <msg>|<msg>] [-h|--help] [--log_level=<log_level>]
 
 Options:
     -h,--help                   show usage
-    -m                          set commit type: modify
     -b                          set commit type: bugfix
     -f                          set commit type: feature
     -R                          set commit type: refactor
     -r                          set commit type: revert
+    -d                          set commit type: doc
+    -s                          set commit type: style
+    -p                          set commit type: perf
+    -t                          set commit type: test
+    -c                          set commit type: chore
     -1                          1st version number +1
     -2                          2nd version number +1
     -3                          3rd version number +1
@@ -88,11 +92,15 @@ def Config():
 
 
 def main():
-    commit_types = {'-m': 'modify',
-                    '-b': 'bugfix',
+    commit_types = {'-b': 'bugfix',
                     '-f': 'feature',
                     '-R': 'refactor',
-                    '-r': 'revert', }
+                    '-r': 'revert',
+                    '-d': 'doc',
+                    '-s': 'style',
+                    '-p': 'perf',
+                    '-t': 'test',
+                    '-c': 'chore', }
 
     args = docopt.docopt(__doc__)
     InitLogger(args)
