@@ -84,9 +84,11 @@ def EnvCheck():
 
 
 def Config():
-    answer = commit_inquirer.QUsernamePassword()
+    answer = commit_inquirer.QServerUsernamePassword()
+    server = answer['server']
     username = answer['username']
     password = answer['password']
+    config.Write('server', des.DesEncrypt(server))
     config.Write('username', des.DesEncrypt(username))
     config.Write('password', des.DesEncrypt(password))
 
