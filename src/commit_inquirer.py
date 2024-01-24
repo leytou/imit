@@ -11,7 +11,9 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))  # noqa
 import version_handler
 
 
-def _MsgValidation(answers, current):
+def _MsgValidation(answers, current, nullable):
+    if nullable:
+        return True
     if not current:
         raise inquirer.errors.ValidationError(
             '', reason='Please input commit message!')
@@ -135,10 +137,10 @@ def QJiraId(from_server=False):
         return answer
 
 
-def QMsg(field):
+def QMsg(field, skippable):
     question = inquirer.Text('commit_%s' % field,
-                             message='请输入commit %s' % field,
-                             validate=_MsgValidation
+                             message='请输入commit %s' % field + ('(按回车跳过)' if skippable else ''),
+                             validate= lambda answer, current: _MsgValidation(answer, current, skippable)
                              )
     return inquirer.prompt([question])
 

@@ -87,7 +87,7 @@ def Handle(commit_option, version_file_path):
 
     msg_tags = [commit_option['commit_type'],
                 version_str_updated, commit_option['jira_id']]
-    commit_msg = _GenerateCommitMsg(msg_tags, commit_option['commit_title'], {"why": commit_option['commit_why'], "how": commit_option['commit_how'], "influence": commit_option['commit_influence']})
+    commit_msg = _GenerateCommitMsg(msg_tags, commit_option['commit_title'], {"why": commit_option.get('commit_why', None), "how": commit_option.get('commit_how', None), "influence": commit_option.get('commit_influence', None)})
     logging.debug('commit msg: ' + commit_msg)
 
     _Add(version_file_path)

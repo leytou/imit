@@ -67,24 +67,27 @@ def UpdateOptionFromInquirer(commit_option, version_file_path, commit_types):
         logging.debug('option : '+str(answer))
 
     if 'commit_title' not in commit_option:
-        answer = commit_inquirer.QMsg("title")
+        answer = commit_inquirer.QMsg("title", False)
         commit_option.update(answer)
         logging.debug('option : '+str(answer))
 
-    if commit_option['commit_type'] in ('docs', 'test') :
+    skippable = True
+    if commit_option['commit_type'] in ('docs', 'test', 'style') :
         return
+    elif commit_option['commit_type'] in ('bugfix',) :
+        skippable = False
 
     if 'commit_why' not in commit_option:
-        answer = commit_inquirer.QMsg("why")
+        answer = commit_inquirer.QMsg("why", skippable)
         commit_option.update(answer)
         logging.debug('option : '+str(answer))
 
     if 'commit_how' not in commit_option:
-        answer = commit_inquirer.QMsg("how")
+        answer = commit_inquirer.QMsg("how", skippable)
         commit_option.update(answer)
         logging.debug('option : '+str(answer))
 
     if 'commit_influence' not in commit_option:
-        answer = commit_inquirer.QMsg("influence")
+        answer = commit_inquirer.QMsg("influence", skippable)
         commit_option.update(answer)
         logging.debug('option : '+str(answer))
