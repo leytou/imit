@@ -10,27 +10,32 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))  # noqa
 import config
 import des
 
-jira_issues_api = 'https://jira.cvte.com/issues/?jql='
-
 jira_filter = 'assignee = currentUser() AND resolution = Unresolved order by lastViewed DESC',
 
 issues_config_key = 'issues'
+server_config_key = 'server'
 username_config_key = 'username'
 password_config_key = 'password'
 
 
 def GetJiraIssuesFromServer():
+    server_en = config.Get(server_config_key)
     username_en = config.Get(username_config_key)
     password_en = config.Get(password_config_key)
-    if not username_en or not password_en:
-        print("请通过'imit config' 配置Jenkines用户名和密码!")
+    if not server_en or not username_en or not password_en:
+        print("请通过'imit config' 配置JIRA网站路径，用户名和密码!")
         return []
 
+    server = des.DesDecrypt(server_en)
     username = des.DesDecrypt(username_en)
     password = des.DesDecrypt(password_en)
-    jira = JIRA(server='https://jira.cvte.com/',
-                basic_auth=(username, password),
-                timeout=5)
+    try:
+        jira = JIRA(server=server,
+                    basic_auth=(username, password),
+                    timeout=5)
+    except Exception as e:
+        print("连接JIRA失败: %s，请检查JIRA网站路径/用户名/密码配置是否正确" % e)
+        return []
 
     issues_list = [(issues.key, issues.fields.summary)
                    for issues in jira.search_issues(jira_filter)]

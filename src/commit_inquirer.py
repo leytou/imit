@@ -11,7 +11,9 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))  # noqa
 import version_handler
 
 
-def _MsgValidation(answers, current):
+def _MsgValidation(answers, current, nullable):
+    if nullable:
+        return True
     if not current:
         raise inquirer.errors.ValidationError(
             '', reason='Please input commit message!')
@@ -135,19 +137,21 @@ def QJiraId(from_server=False):
         return answer
 
 
-def QMsg():
-    question = inquirer.Text('commit_msg',
-                             message='请输入commit message',
-                             validate=_MsgValidation
+def QMsg(field, skippable):
+    question = inquirer.Text('commit_%s' % field,
+                             message='请输入commit %s' % field + ('(按回车跳过)' if skippable else ''),
+                             validate= lambda answer, current: _MsgValidation(answer, current, skippable)
                              )
     return inquirer.prompt([question])
 
 
-def QUsernamePassword():
+def QServerUsernamePassword():
     question = [
         inquirer.Text(
-            'username', message='请输入Jenkines用户名', validate=lambda _, x: x != ''),
-        inquirer.Password('password', message='请输入Jenkines密码',
+            'server', message='请输入JIRA主页面链接', validate=lambda _, x: x.startswith('http://') or x.startswith('https://')),
+        inquirer.Text(
+            'username', message='请输入JIRA用户名', validate=lambda _, x: x != ''),
+        inquirer.Password('password', message='请输入JIRA密码',
                           validate=lambda _, x: x != ''),
     ]
     return inquirer.prompt(question)
