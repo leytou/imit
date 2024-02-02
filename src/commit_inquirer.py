@@ -7,6 +7,9 @@ import os
 import inquirer
 import shutil
 
+if not sys.platform == 'win32':
+    import readline
+
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))  # noqa
 import version_handler
 
@@ -138,12 +141,12 @@ def QJiraId(from_server=False):
 
 
 def QMsg(field, skippable):
-    question = inquirer.Text('commit_%s' % field,
-                             message='请输入commit %s' % field + ('(按回车跳过)' if skippable else ''),
-                             validate= lambda answer, current: _MsgValidation(answer, current, skippable)
-                             )
-    return inquirer.prompt([question])
-
+    while True:
+        str = input('请输入commit %s：' % field + ('(按回车跳过)' if skippable else ''))
+        if skippable and not str:
+            return {'commit_%s' % field: ''}
+        if str:
+            return {'commit_%s' % field: str}
 
 def QServerUsernamePassword():
     question = [
