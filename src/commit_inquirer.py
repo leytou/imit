@@ -6,7 +6,9 @@ import sys
 import os
 import inquirer
 import shutil
-import readline
+
+if not sys.platform == 'win32':
+    import readline
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))  # noqa
 import version_handler
