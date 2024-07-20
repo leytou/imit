@@ -9,16 +9,6 @@ import fnmatch
 import re
 
 
-def _FindVersionFile(directory, match_list):
-    for match_pattern in match_list:
-        file_list = os.listdir(directory)
-        file_list.sort(key=len)  # 文件名短的在前面，避免拷贝的副本在前面
-        for file in file_list:
-            if fnmatch.fnmatch(file, match_pattern):
-                return file
-    return ''
-
-
 def _VersionStr(num_list):
     version = ''
     for num in num_list:
@@ -116,19 +106,70 @@ class PodspecFile:
                     file.write(file_content)
                     file.truncate()
 
+class XcodeProjectFile:
+    def __init__(self, path):
+        self.path = path
+
+    def TagNumDict(self):
+        tag_num_dict = {}
+        with open(self.path, 'r', encoding='utf-8') as file:
+            content = file.read()
+            pattern = r'MARKETING_VERSION\s*=\s*(\d+(\.\d+)*);'
+            match = re.search(pattern, content)
+            if match:
+                version_str = match.group(1)
+                versions = version_str.split('.')
+                v_list = ['x', 'y', 'z', 'm', 'n']  # 限制为4位版本号
+                for i, v in enumerate(versions):
+                    if i < len(v_list):
+                        tag_num_dict[v_list[i]] = int(v)
+        return tag_num_dict
+
+    def WriteToFile(self, version_dict):
+        current_version = self.TagNumDict()
+        # 更新当前版本号，只修改已更改的部分
+        for key in version_dict:
+            if key in current_version:
+                current_version[key] = version_dict[key]
+        
+        new_version = '.'.join(str(current_version.get(key, 0)) for key in ['x', 'y', 'z', 'm'])
+        with open(self.path, 'r', encoding='utf-8') as file:
+            content = file.read()
+
+        pattern = r'(MARKETING_VERSION\s*=\s*)\d+(\.\d+)*;'
+        new_content = re.sub(pattern, lambda m: f"{m.group(1)}{new_version};", content)
+
+        with open(self.path, 'w', encoding='utf-8') as file:
+            file.write(new_content)
+
 
 class VersionProcessor:
-    def __init__(self):
-        files = ['version.properties', '*.podspec']
-        self.file_path = _FindVersionFile('.', files)
+    def __init__(self, start_path='.'):
+        self.start_path = os.path.abspath(start_path)
+        files = ['version.properties', '*.podspec', 'project.pbxproj']
+        self.file_path = self._FindVersionFile(self.start_path, files)
         if self.file_path == '':
-            print('Version file %s not found in current path.' % files)
+            print('Version file %s not found in path %s or its subdirectories.' % (files, self.start_path))
             exit(1)
         logging.debug('version file path: ' + self.file_path)
+
         if self.file_path.endswith('.properties'):
             self.version_file = PropertiesFile(self.file_path)
         elif self.file_path.endswith('.podspec'):
             self.version_file = PodspecFile(self.file_path)
+        elif self.file_path.endswith('project.pbxproj'):
+            self.version_file = XcodeProjectFile(self.file_path)
+        else:
+            print('Unsupported version file format.')
+            exit(1)
+
+    def _FindVersionFile(self, directory, match_list):
+        for root, dirs, files in os.walk(directory):
+            for match_pattern in match_list:
+                for file in files:
+                    if file == match_pattern or (match_pattern.startswith('*') and file.endswith(match_pattern[1:])):
+                        return os.path.join(root, file)
+        return ''
 
     def CurrentVersion(self):
         nums_list = list(self.version_file.TagNumDict().values())
