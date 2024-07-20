@@ -132,7 +132,7 @@ class XcodeProjectFile:
             if key in current_version:
                 current_version[key] = version_dict[key]
         
-        new_version = '.'.join(str(current_version.get(key, 0)) for key in ['x', 'y', 'z', 'm'])
+        new_version = '.'.join(str(current_version.get(key)) for key in ['x', 'y', 'z', 'm', 'n'] if key in current_version)
         with open(self.path, 'r', encoding='utf-8') as file:
             content = file.read()
 
