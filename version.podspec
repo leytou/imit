@@ -1,4 +1,4 @@
 Pod::Spec.new do |spec|
   spec.name          = 'test'
-  spec.version       = '0.9.11'
+  spec.version       = '1.3.4'
   spec.license       = { :type => 'BSD' }
