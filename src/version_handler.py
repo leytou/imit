@@ -107,8 +107,9 @@ class PodspecFile:
                     file.truncate()
 
 class XcodeProjectFile:
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, xcodeproj_path):
+        self.xcodeproj_path = xcodeproj_path
+        self.path = os.path.join(xcodeproj_path, 'project.pbxproj')
 
     def TagNumDict(self):
         tag_num_dict = {}
@@ -146,7 +147,7 @@ class XcodeProjectFile:
 class VersionProcessor:
     def __init__(self, start_path='.'):
         self.start_path = os.path.abspath(start_path)
-        files = ['version.properties', '*.podspec', 'project.pbxproj']
+        files = ['version.properties', '*.podspec', '*.xcodeproj']
         self.file_path = self._FindVersionFile(self.start_path, files)
         if self.file_path == '':
             print('Version file %s not found in path %s or its subdirectories.' % (files, self.start_path))
@@ -157,18 +158,19 @@ class VersionProcessor:
             self.version_file = PropertiesFile(self.file_path)
         elif self.file_path.endswith('.podspec'):
             self.version_file = PodspecFile(self.file_path)
-        elif self.file_path.endswith('project.pbxproj'):
+        elif self.file_path.endswith('.xcodeproj'):
             self.version_file = XcodeProjectFile(self.file_path)
         else:
             print('Unsupported version file format.')
             exit(1)
 
     def _FindVersionFile(self, directory, match_list):
-        for root, dirs, files in os.walk(directory):
-            for match_pattern in match_list:
-                for file in files:
-                    if file == match_pattern or (match_pattern.startswith('*') and file.endswith(match_pattern[1:])):
-                        return os.path.join(root, file)
+        for match_pattern in match_list:
+            file_list = os.listdir(directory)
+            file_list.sort(key=len)  # 文件名短的在前面，避免拷贝的副本在前面
+            for file in file_list:
+                if fnmatch.fnmatch(file, match_pattern):
+                    return file
         return ''
 
     def CurrentVersion(self):
