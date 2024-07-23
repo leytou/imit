@@ -4,10 +4,11 @@
 """
 Usage:
     imit.py config
-    imit.py [-f|-b|-c|-R|-t|-p|-d|-s|-r] [-1|-2|-3|-4] [-M <msg>|<msg>] [-h|--help] [--log_level=<log_level>]
+    imit.py [-m|-f|-b|-c|-R|-t|-p|-d|-s|-r] [-1|-2|-3|-4] [-M <msg>|<msg>] [-h|--help] [--log_level=<log_level>]
 
 Options:
     -h,--help                   show usage
+    -m                          set commit type: modify
     -f                          set commit type: feature
     -b                          set commit type: bugfix
     -c                          set commit type: chore
@@ -49,68 +50,74 @@ def InitLogger(args):
 
         log_level = "info"
 
-    logging.basicConfig(level=logging._nameToLevel[log_level.upper()],
-                        format='[%(levelname)s]: %(message)s')
+    logging.basicConfig(
+        level=logging._nameToLevel[log_level.upper()],
+        format="[%(levelname)s]: %(message)s",
+    )
 
 
 def GetCommitOption(args, commit_types, version_file_path):
     commit_option = {}
     # 如果版本文件已修改过，则不再修改版本号(index设为0)
     if version_file_path in git_handler.AllChangedFiles():
-        commit_option['version_index'] = 0
+        commit_option["version_index"] = 0
 
     option_handler.UpdateOptionFromArgs(commit_option, args, commit_types)
     option_handler.UpdateOptionFromInquirer(
-        commit_option, version_file_path, commit_types)
+        commit_option, version_file_path, commit_types
+    )
 
     return commit_option
 
 
 def EnvCheck():
     if sys.version_info < (3, 7):  # 3.7后dict默认为有序
-        print('Please run imit with greater than python3.7.')
+        print("Please run imit with greater than python3.7.")
         exit(-1)
 
     git_root_path = git_handler.GetGitRootPath(os.getcwd())
     if not git_root_path:
-        print('Please run imit in the git project path.')
+        print("Please run imit in the git project path.")
         exit(-1)
 
     os.chdir(git_root_path)
 
     if not git_handler.StagedFiles():
-        print('No staged file, exit commit.')
+        print("No staged file, exit commit.")
         exit(-1)
 
 
 def Config():
     answer = commit_inquirer.QServerUsernamePassword()
-    server = answer['server']
-    username = answer['username']
-    password = answer['password']
-    config.Write('server', des.DesEncrypt(server))
-    config.Write('username', des.DesEncrypt(username))
-    config.Write('password', des.DesEncrypt(password))
+    server = answer["server"]
+    username = answer["username"]
+    password = answer["password"]
+    config.Write("server", des.DesEncrypt(server))
+    config.Write("username", des.DesEncrypt(username))
+    config.Write("password", des.DesEncrypt(password))
 
 
 def main():
-    commit_types = {'-f': 'feature',
-                    '-b': 'bugfix',
-                    '-c': 'chore',
-                    '-R': 'refactor',
-                    '-t': 'test',
-                    '-p': 'perf',
-                    '-d': 'doc',
-                    '-s': 'style',
-                    '-r': 'revert', }
+    commit_types = {
+        "-m": "modify",
+        "-f": "feature",
+        "-b": "bugfix",
+        "-c": "chore",
+        "-R": "refactor",
+        "-t": "test",
+        "-p": "perf",
+        "-d": "doc",
+        "-s": "style",
+        "-r": "revert",
+    }
 
     args = docopt.docopt(__doc__)
     InitLogger(args)
     logging.debug(args)
 
-    if args['config']:
+    if args["config"]:
         Config()
-        print('Username and password are encrypted and stored in file ~/.imitrc.ini')
+        print("Username and password are encrypted and stored in file ~/.imitrc.ini")
         exit(0)
 
     EnvCheck()
@@ -118,7 +125,7 @@ def main():
     version_processor = version_handler.VersionProcessor()
     version_file_path = version_processor.file_path
     commit_option = GetCommitOption(args, commit_types, version_file_path)
-    logging.debug('commit option: ' + str(commit_option))
+    logging.debug("commit option: " + str(commit_option))
 
     git_handler.Handle(commit_option, version_file_path)
 

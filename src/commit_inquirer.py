@@ -158,3 +158,11 @@ def QServerUsernamePassword():
                           validate=lambda _, x: x != ''),
     ]
     return inquirer.prompt(question)
+
+def QCommitStyle(styles):
+    question = inquirer.List('commit_style',
+                             message='请选择commit message风格(首次使用配置，后续通过配置文件(~/.imitrc.ini)修改)',
+                             choices=styles,
+                             carousel=True
+                             )
+    return inquirer.prompt([question])['commit_style']
