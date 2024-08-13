@@ -15,7 +15,9 @@ import version_handler
 
 def _GitCmd(cmd):
     git = Git(os.getcwd())
-    return git.execute(cmd)
+    _,stdout,stderr = git.execute(cmd, with_extended_output=True)
+    print(stderr)
+    return stdout
 
 
 def _Add(path):
