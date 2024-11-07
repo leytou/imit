@@ -56,11 +56,18 @@ def InitLogger(args):
     )
 
 
-def GetCommitOption(args, commit_types, version_file_path):
+def GetCommitOption(args, commit_types, version_file_path, current_version):
     commit_option = {}
-    # 如果版本文件已修改过，则不再修改版本号(index设为0)
-    if version_file_path in git_handler.AllChangedFiles():
-        commit_option["version_index"] = 0
+    if version_file_path.endswith("version.properties"):
+        # 如果版本文件已修改过，则不再修改版本号(index设为0)
+        if version_file_path in git_handler.AllChangedFiles():
+            commit_option["version_index"] = 0
+    else:
+        last_version = git_handler.LastCommitVersion()
+        # 如果当前版本号和上一次提交版本号不一致则认为已手动修改过
+        if not last_version is None and last_version != current_version:
+            commit_option["version_index"] = 0
+
 
     option_handler.UpdateOptionFromArgs(commit_option, args, commit_types)
     option_handler.UpdateOptionFromInquirer(
@@ -127,7 +134,7 @@ def main():
 
     version_processor = version_handler.VersionProcessor()
     version_file_path = version_processor.file_path
-    commit_option = GetCommitOption(args, commit_types, version_file_path)
+    commit_option = GetCommitOption(args, commit_types, version_file_path, version_processor.CurrentVersion())
     logging.debug("commit option: " + str(commit_option))
 
     git_handler.Handle(commit_option, version_file_path)
