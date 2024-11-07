@@ -28,7 +28,13 @@ def _IncreaseVersion(nums_list, index):
     if index >= len(nums_list):
         index = len(nums_list) - 1
 
-    nums_list[index] += 1
+    if isinstance(nums_list[index], int):
+        nums_list[index] += 1
+    elif isinstance(nums_list[index], str):
+        digits = nums_list[index].split('.')
+        digits[-1] = str(int(digits[-1]) + 1)
+        nums_list[index] = '.'.join(digits)
+
     for i in range(index+1, len(nums_list)):
         nums_list[i] = 0
 
@@ -143,11 +149,49 @@ class XcodeProjectFile:
         with open(self.path, 'w', encoding='utf-8') as file:
             file.write(new_content)
 
+class ConanFile:
+    def __init__(self, conanfile_path):
+        self.path = conanfile_path
+
+    def TagNumDict(self):
+        tag_num_dict = {}
+        with open(self.path, 'r', encoding='utf-8') as file:
+            content = file.read()
+            pattern = r'version\s?=\s?"(\d+(\.\d+)+)"'
+            match = re.search(pattern, content)
+            if match:
+                version_str = match.group(1)
+                versions = version_str.split('.')
+                first_major = versions.pop(0) if len(versions) == 4 else None
+                v_list = ['major', 'minor', 'patch']
+                for i, v in enumerate(versions):
+                    if i < len(v_list):
+                        tag_num_dict[v_list[i]] = int(v)
+                if not first_major is None:
+                    tag_num_dict["major"] = f"{first_major}.{tag_num_dict['major']}"
+        return tag_num_dict
+
+    def WriteToFile(self, version_dict):
+        current_version = self.TagNumDict()
+        for key in version_dict:
+            if key in current_version:
+                current_version[key] = version_dict[key]
+        
+        new_version = '.'.join(str(current_version.get(key)) for key in ['major', 'minor', 'patch'] if key in current_version)
+        with open(self.path, 'r', encoding='utf-8') as file:
+            content = file.read()
+
+        pattern = r'(version\s?=\s?)"\d+(\.\d+)+"'
+        new_content = re.sub(pattern, lambda m: f"{m.group(1)}\"{new_version}\"", content)
+
+        with open(self.path, 'w', encoding='utf-8') as file:
+            file.write(new_content)
+
 
 class VersionProcessor:
     def __init__(self, start_path='.'):
         self.start_path = os.path.abspath(start_path)
-        files = ['version.properties', '*.podspec', '*.xcodeproj']
+        files = ['version.properties', '*.podspec', '*.xcodeproj', "conanfile.py"]
         self.file_path = self._FindVersionFile(self.start_path, files)
         if self.file_path == '':
             print('Version file %s not found in path %s or its subdirectories.' % (files, self.start_path))
@@ -160,6 +204,8 @@ class VersionProcessor:
             self.version_file = PodspecFile(self.file_path)
         elif self.file_path.endswith('.xcodeproj'):
             self.version_file = XcodeProjectFile(self.file_path)
+        elif self.file_path.endswith('conanfile.py'):
+            self.version_file = ConanFile(self.file_path)
         else:
             print('Unsupported version file format.')
             exit(1)

@@ -39,7 +39,7 @@ def QVersion(tags, commit_type, version_file_path):
     nums = list(version_processor.TagNumDict().values())
     index = 0
     for tag in tags:
-        tag += '\t(%d) ' % nums[index]
+        tag += '\t(%s) ' % nums[index]
         index += 1
         tags_index_tagged.append((tag, index))
     # print(tags_index_tagged)
