@@ -5,6 +5,7 @@
 import os
 import sys
 import logging
+import re
 from git.cmd import Git
 from git import Repo
 from pathlib import Path
@@ -70,6 +71,15 @@ def GetGitRootPath(path):
 def AllChangedFiles():
     cmd = ['git', 'diff', '--name-only', 'HEAD']
     return _ChangedFiles(cmd)
+
+def LastCommitVersion():
+    cmd = ['git', 'log', '-1', '--pretty=format:"%s"']
+    output =  _GitCmd(cmd)
+    pattern = r'\[(\d+(\.\d+)+)\]'
+    match = re.search(pattern, output)
+    if not match:
+        return None
+    return str(match.group(1))
 
 
 def StagedFiles():
