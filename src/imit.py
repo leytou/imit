@@ -4,7 +4,7 @@
 """
 Usage:
     imit.py config
-    imit.py [-m|-f|-b|-c|-R|-t|-p|-d|-s|-r] [-1|-2|-3|-4] [-M <msg>|<msg>] [-h|--help] [--log_level=<log_level>]
+    imit.py [-m|-f|-b|-c|-R|-t|-p|-d|-s|-r|-i|-u|-e] [-1|-2|-3|-4] [-M <msg>|<msg>] [-h|--help] [--log_level=<log_level>]
 
 Options:
     -h,--help                   show usage
@@ -102,13 +102,16 @@ def main():
         "-m": "modify",
         "-f": "feature",
         "-b": "bugfix",
-        "-c": "chore",
+        "-i": "improve",
+        "-e": "depend",
+        "-u": "build",
         "-R": "refactor",
-        "-t": "test",
-        "-p": "perf",
-        "-d": "doc",
         "-s": "style",
+        "-t": "test",
+        "-d": "doc",
+        "-p": "perf",
         "-r": "revert",
+        "-c": "chore",
     }
 
     args = docopt.docopt(__doc__)
