@@ -178,13 +178,13 @@ class ConanFile:
                 current_version[key] = version_dict[key]
         
         new_version = '.'.join(str(current_version.get(key)) for key in ['major', 'minor', 'patch'] if key in current_version)
-        with open(self.path, 'r', encoding='utf-8') as file:
+        with open(self.path, 'r', encoding='utf-8', newline='') as file:
             content = file.read()
 
         pattern = r'(version\s?=\s?)"\d+(\.\d+)+"'
         new_content = re.sub(pattern, lambda m: f"{m.group(1)}\"{new_version}\"", content)
 
-        with open(self.path, 'w', encoding='utf-8', newline='\n') as file:
+        with open(self.path, 'w', encoding='utf-8', newline='') as file:
             file.write(new_content)
 
 
