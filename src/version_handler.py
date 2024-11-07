@@ -184,7 +184,7 @@ class ConanFile:
         pattern = r'(version\s?=\s?)"\d+(\.\d+)+"'
         new_content = re.sub(pattern, lambda m: f"{m.group(1)}\"{new_version}\"", content)
 
-        with open(self.path, 'w', encoding='utf-8') as file:
+        with open(self.path, 'w', encoding='utf-8', newline='\n') as file:
             file.write(new_content)
 
 
