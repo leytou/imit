@@ -148,13 +148,11 @@ def QMsg(field, skippable):
         if str:
             return {'commit_%s' % field: str}
 
-def QServerUsernamePassword():
+def QServerJiraToken():
     question = [
         inquirer.Text(
             'server', message='请输入JIRA主页面链接', validate=lambda _, x: x.startswith('http://') or x.startswith('https://')),
-        inquirer.Text(
-            'username', message='请输入JIRA用户名', validate=lambda _, x: x != ''),
-        inquirer.Password('password', message='请输入JIRA密码',
+        inquirer.Password('api_token', message='请输入JIRA API token(JIRA右上角-用户信息-个人访问令牌)',
                           validate=lambda _, x: x != ''),
     ]
     return inquirer.prompt(question)

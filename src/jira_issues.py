@@ -14,27 +14,24 @@ jira_filter = 'assignee = currentUser() AND resolution = Unresolved order by las
 
 issues_config_key = 'issues'
 server_config_key = 'server'
-username_config_key = 'username'
-password_config_key = 'password'
+api_token_config_key = 'api_token'
 
 
 def GetJiraIssuesFromServer():
     server_en = config.Get(server_config_key)
-    username_en = config.Get(username_config_key)
-    password_en = config.Get(password_config_key)
-    if not server_en or not username_en or not password_en:
-        print("请通过'imit config' 配置JIRA网站路径，用户名和密码!")
+    api_token_en = config.Get(api_token_config_key)
+    if not server_en or not api_token_en:
+        print("请通过'imit config' 配置JIRA网站路径和API token(在JIRA右上角-用户信息-个人访问令牌中创建)!")
         return []
 
     server = des.DesDecrypt(server_en)
-    username = des.DesDecrypt(username_en)
-    password = des.DesDecrypt(password_en)
+    api_token = des.DesDecrypt(api_token_en)
     try:
         jira = JIRA(server=server,
-                    basic_auth=(username, password),
+                    token_auth=api_token,
                     timeout=5)
     except Exception as e:
-        print("连接JIRA失败: %s，请检查JIRA网站路径/用户名/密码配置是否正确" % e)
+        print("连接JIRA失败: %s，请检查JIRA网站路径/API token配置是否正确" % e)
         return []
 
     issues_list = [(issues.key, issues.fields.summary)
