@@ -31,3 +31,14 @@ def Get(key):
     if config.has_option(group, key):
         return config.get(group, key)
     return ''
+
+def RemoveKey(key):
+    if not os.path.exists(config_path):
+        return
+
+    config = configparser.RawConfigParser()
+    config.read(config_path, encoding="utf-8")
+    if config.has_option(group, key):
+        config.remove_option(group, key)
+        with open(config_path, 'w', encoding="utf-8") as configfile:
+            config.write(configfile)

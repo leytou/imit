@@ -6,11 +6,10 @@ import sys
 import os
 import inquirer
 import shutil
-
-if not sys.platform == 'win32':
-    import readline
+from prompt_toolkit import prompt
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))  # noqa
+import config
 import version_handler
 
 
@@ -161,12 +160,34 @@ def QJiraId(from_server=False):
 
 
 def QMsg(field, skippable):
+    # 尝试从配置文件恢复上次未成功提交的信息
+    saved_msg = config.Get(f'temp_commit_{field}')
+    default_msg = ''
+    
+    if saved_msg:
+        print(f'发现上次未成功提交的{field}信息，已自动填充，可直接编辑：')
+        default_msg = saved_msg
+
     while True:
-        str = input('请输入commit %s：' % field + ('(按回车跳过)' if skippable else ''))
-        if skippable and not str:
-            return {'commit_%s' % field: ''}
-        if str:
-            return {'commit_%s' % field: str}
+        try:
+            message = '请输入commit %s：' % field + ('(按回车跳过)' if skippable else '')
+            # 使用prompt_toolkit提供跨平台的输入功能
+            str = prompt(message, default=default_msg)
+            
+            if skippable and not str:
+                return {'commit_%s' % field: ''}
+            elif str:
+                # 保存当前输入的信息到配置文件
+                config.Write(f'temp_commit_{field}', str)
+                return {'commit_%s' % field: str}
+            else:
+                # 如果不可跳过且用户没有输入，提示用户重新输入
+                print("请输入必要的提交信息！")
+                continue
+                
+        except KeyboardInterrupt:
+            print("Canceled by user")
+            sys.exit(1)  # 直接退出程序
 
 def QServerJiraToken():
     question = [

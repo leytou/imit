@@ -10,25 +10,35 @@ from git.cmd import Git
 from git import Repo
 from pathlib import Path
 
+
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))  # noqa
 import version_handler
+import config
 
 
 def _GitCmd(cmd):
     git = Git(os.getcwd())
-    _,stdout,stderr = git.execute(cmd, with_extended_output=True)
+    status, stdout, stderr = git.execute(cmd, with_extended_output=True)
     print(stderr)
-    return stdout
+    return status == 0, stdout
 
 
 def _Add(path):
     cmd = ['git', 'add', path]
     _GitCmd(cmd)
 
-
 def _Commit(msg):
     cmd = ['git', 'commit', '-m', msg]
-    return _GitCmd(cmd)
+    success, result = _GitCmd(cmd)
+    
+    # 如果提交成功，清除临时保存的提交信息
+    if success:
+        config.RemoveKey('temp_commit_title')
+        config.RemoveKey('temp_commit_why')
+        config.RemoveKey('temp_commit_how')
+        config.RemoveKey('temp_commit_influence')
+    
+    return result
 
 
 def _GenerateCommitMsg(msg_tags, msg_title, msg_fields):
@@ -46,11 +56,10 @@ def _GenerateCommitMsg(msg_tags, msg_title, msg_fields):
             commit_msg += "\n" + field
     return commit_msg
 
-
 def _ChangedFiles(cmd):
-    output = _GitCmd(cmd)
+    success, output = _GitCmd(cmd)
     logging.debug('changed files: ' + str(output))
-    if not output:
+    if not success or not output:
         return []
     changed_files = output.split("\n")
     return changed_files
@@ -74,7 +83,9 @@ def AllChangedFiles():
 
 def LastCommitVersion():
     cmd = ['git', 'log', '-1', '--pretty=format:"%s"']
-    output =  _GitCmd(cmd)
+    success, output = _GitCmd(cmd)
+    if not success:
+        return None
     pattern = r'\[(\d+(\.\d+)+)\]'
     match = re.search(pattern, output)
     if not match:
