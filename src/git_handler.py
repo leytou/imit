@@ -56,13 +56,25 @@ def _GenerateCommitMsg(msg_tags, msg_title, msg_fields):
             commit_msg += "\n" + field
     return commit_msg
 
+def _HasCommits():
+    """Check if the repository has any commits."""
+    try:
+        git = Git(os.getcwd())
+        git.rev_parse("HEAD")
+        return True
+    except:
+        return False
+
 def _ChangedFiles(cmd):
-    success, output = _GitCmd(cmd)
-    logging.debug('changed files: ' + str(output))
-    if not success or not output:
-        return []
-    changed_files = output.split("\n")
-    return changed_files
+    try:
+        success, output = _GitCmd(cmd)
+        logging.debug('changed files: ' + str(output))
+        if not success or not output:
+            return []
+        changed_files = output.split("\n")
+        return changed_files
+    except Exception as e:
+        logging.debug(f'Error getting changed files: {str(e)}')
 
 
 def GetGitRootPath(path):
@@ -78,10 +90,15 @@ def GetGitRootPath(path):
 
 
 def AllChangedFiles():
+    if not _HasCommits():
+        # For first commit, get all staged files
+        return StagedFiles()
     cmd = ['git', 'diff', '--name-only', 'HEAD']
     return _ChangedFiles(cmd)
 
 def LastCommitVersion():
+    if not _HasCommits():
+        return None
     cmd = ['git', 'log', '-1', '--pretty=format:"%s"']
     success, output = _GitCmd(cmd)
     if not success:
