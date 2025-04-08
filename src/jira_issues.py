@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))  # noqa
 import config
 import des
 
-jira_filter = 'assignee = currentUser() AND resolution = Unresolved order by lastViewed DESC',
+jira_filter = 'assignee = currentUser() AND resolution = Unresolved AND status != 测试中 order by lastViewed DESC',
 
 issues_config_key = 'issues'
 server_config_key = 'server'
