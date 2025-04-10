@@ -6,11 +6,10 @@ import sys
 import os
 import inquirer
 import shutil
-
-if not sys.platform == 'win32':
-    import readline
+from prompt_toolkit import prompt
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))  # noqa
+import config
 import version_handler
 
 
@@ -124,37 +123,77 @@ def QJiraId(from_server=False):
         print('加载jira 问题列表失败...')
         return {'jira_id': ''}
 
-    jira_ids = _JiraVisualHandle(issues)
+    all_jira_ids = _JiraVisualHandle(issues)
+    filtered_ids = all_jira_ids.copy()
 
-    jira_ids.insert(0,  ('无', ''))
-    jira_ids.append(('↺【 刷新 】', '--refresh--'))
-    question = inquirer.List('jira_id',
-                             message='请选择JIRA ID',
-                             choices=jira_ids,
-                             carousel=True
-                             )
-    answer = inquirer.prompt([question])
-    if answer['jira_id'] == '--refresh--':
-        return QJiraId(True)
-    else:
-        return answer
+    while True:
+        choices = [('无', '')] + filtered_ids + [
+            ('↺【 刷新 】', '--refresh--'),
+            ('🔍【 筛选 】', '--filter--')
+        ]
+
+        question = inquirer.List('jira_id',
+                                message='请选择JIRA ID',
+                                choices=choices,
+                                carousel=True
+                                )
+        answer = inquirer.prompt([question])
+        if not answer:  # 用户按Ctrl+C取消
+            return {'jira_id': ''}
+        
+        if answer['jira_id'] == '--refresh--':
+            return QJiraId(True)
+        elif answer['jira_id'] == '--filter--':
+            filter_text = input('请输入筛选关键字: ').strip().lower()
+            if filter_text:
+                # 根据关键字过滤JIRA ID和描述
+                filtered_ids = [(display, id) for display, id in all_jira_ids 
+                              if filter_text in display.lower() or filter_text in id.lower()]
+                if not filtered_ids:
+                    print('没有找到匹配的JIRA条目')
+                    filtered_ids = all_jira_ids.copy()  # 如果没找到，恢复完整列表
+            else:
+                filtered_ids = all_jira_ids.copy()  # 如果输入空字符串，恢复完整列表
+            continue
+        else:
+            return answer
 
 
 def QMsg(field, skippable):
-    while True:
-        str = input('请输入commit %s：' % field + ('(按回车跳过)' if skippable else ''))
-        if skippable and not str:
-            return {'commit_%s' % field: ''}
-        if str:
-            return {'commit_%s' % field: str}
+    # 尝试从配置文件恢复上次未成功提交的信息
+    saved_msg = config.Get(f'temp_commit_{field}')
+    default_msg = ''
+    
+    if saved_msg:
+        print(f'发现上次未成功提交的{field}信息，已自动填充，可直接编辑：')
+        default_msg = saved_msg
 
-def QServerUsernamePassword():
+    while True:
+        try:
+            message = '请输入commit %s：' % field + ('(按回车跳过)' if skippable else '')
+            # 使用prompt_toolkit提供跨平台的输入功能
+            str = prompt(message, default=default_msg)
+            
+            if skippable and not str:
+                return {'commit_%s' % field: ''}
+            elif str:
+                # 保存当前输入的信息到配置文件
+                config.Write(f'temp_commit_{field}', str)
+                return {'commit_%s' % field: str}
+            else:
+                # 如果不可跳过且用户没有输入，提示用户重新输入
+                print("请输入必要的提交信息！")
+                continue
+                
+        except KeyboardInterrupt:
+            print("Canceled by user")
+            sys.exit(1)  # 直接退出程序
+
+def QServerJiraToken():
     question = [
         inquirer.Text(
             'server', message='请输入JIRA主页面链接', validate=lambda _, x: x.startswith('http://') or x.startswith('https://')),
-        inquirer.Text(
-            'username', message='请输入JIRA用户名', validate=lambda _, x: x != ''),
-        inquirer.Password('password', message='请输入JIRA密码',
+        inquirer.Password('api_token', message='请输入JIRA API token(JIRA右上角-用户信息-个人访问令牌)',
                           validate=lambda _, x: x != ''),
     ]
     return inquirer.prompt(question)

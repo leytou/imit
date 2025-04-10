@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="imit",
-    version="1.4.3",
+    version="1.5.1",
     description="提供交互或命令行的形式规范地提交git commit",
     long_description="""提供交互或命令行的形式规范地提交git commit""",
     keywords="python commit git",
@@ -16,7 +16,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     python_requires=">=3.7",
-    install_requires=["inquirer", "docopt", "GitPython", "jira", "pyDes"],
+    install_requires=["inquirer", "docopt", "GitPython", "jira", "pyDes", "prompt_toolkit"],
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

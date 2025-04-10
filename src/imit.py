@@ -95,13 +95,11 @@ def EnvCheck():
 
 
 def Config():
-    answer = commit_inquirer.QServerUsernamePassword()
+    answer = commit_inquirer.QServerJiraToken()
     server = answer["server"]
-    username = answer["username"]
-    password = answer["password"]
+    api_token = answer["api_token"]
     config.Write("server", des.DesEncrypt(server))
-    config.Write("username", des.DesEncrypt(username))
-    config.Write("password", des.DesEncrypt(password))
+    config.Write("api_token", des.DesEncrypt(api_token))
 
 
 def main():
@@ -127,7 +125,7 @@ def main():
 
     if args["config"]:
         Config()
-        print("Username and password are encrypted and stored in file ~/.imitrc.ini")
+        print("API token are encrypted and stored in file ~/.imitrc.ini")
         exit(0)
 
     EnvCheck()
