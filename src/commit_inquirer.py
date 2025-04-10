@@ -216,3 +216,13 @@ def QCommitStyle(styles):
                              carousel=True
                              )
     return inquirer.prompt([question])['commit_style']
+
+
+def QConfirm(message):
+    """询问用户是否确认操作."""
+    questions = [
+        inquirer.Confirm('confirm',
+                         message=message,
+                         default=True)
+    ]
+    return inquirer.prompt(questions)
