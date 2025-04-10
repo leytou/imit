@@ -129,32 +129,40 @@ def QJiraId(from_server=False):
     while True:
         choices = [('无', '')] + filtered_ids + [
             ('↺【 刷新 】', '--refresh--'),
-            ('🔍【 筛选 】', '--filter--')
+            ('🔍【 筛选 】', '--filter--'),
+            ('✏️【 手动输入 】', '--manual--')
         ]
 
         question = inquirer.List('jira_id',
-                                message='请选择JIRA ID',
-                                choices=choices,
-                                carousel=True
-                                )
+                                 message='请选择JIRA ID',
+                                 choices=choices,
+                                 carousel=True
+                                 )
         answer = inquirer.prompt([question])
         if not answer:  # 用户按Ctrl+C取消
             return {'jira_id': ''}
-        
+
         if answer['jira_id'] == '--refresh--':
             return QJiraId(True)
         elif answer['jira_id'] == '--filter--':
             filter_text = input('请输入筛选关键字: ').strip().lower()
             if filter_text:
                 # 根据关键字过滤JIRA ID和描述
-                filtered_ids = [(display, id) for display, id in all_jira_ids 
-                              if filter_text in display.lower() or filter_text in id.lower()]
+                filtered_ids = [(display, id) for display, id in all_jira_ids
+                                if filter_text in display.lower() or filter_text in id.lower()]
                 if not filtered_ids:
                     print('没有找到匹配的JIRA条目')
                     filtered_ids = all_jira_ids.copy()  # 如果没找到，恢复完整列表
             else:
                 filtered_ids = all_jira_ids.copy()  # 如果输入空字符串，恢复完整列表
             continue
+        elif answer['jira_id'] == '--manual--':
+            manual_id = input('请输入JIRA ID: ').strip()
+            if manual_id:
+                return {'jira_id': manual_id}
+            else:
+                print('JIRA ID不能为空')
+                continue
         else:
             return answer
 
@@ -163,17 +171,18 @@ def QMsg(field, skippable):
     # 尝试从配置文件恢复上次未成功提交的信息
     saved_msg = config.Get(f'temp_commit_{field}')
     default_msg = ''
-    
+
     if saved_msg:
         print(f'发现上次未成功提交的{field}信息，已自动填充，可直接编辑：')
         default_msg = saved_msg
 
     while True:
         try:
-            message = '请输入commit %s：' % field + ('(按回车跳过)' if skippable else '')
+            message = '请输入commit %s：' % field + \
+                ('(按回车跳过)' if skippable else '')
             # 使用prompt_toolkit提供跨平台的输入功能
             str = prompt(message, default=default_msg)
-            
+
             if skippable and not str:
                 return {'commit_%s' % field: ''}
             elif str:
@@ -184,10 +193,11 @@ def QMsg(field, skippable):
                 # 如果不可跳过且用户没有输入，提示用户重新输入
                 print("请输入必要的提交信息！")
                 continue
-                
+
         except KeyboardInterrupt:
             print("Canceled by user")
             sys.exit(1)  # 直接退出程序
+
 
 def QServerJiraToken():
     question = [
@@ -198,6 +208,7 @@ def QServerJiraToken():
     ]
     return inquirer.prompt(question)
 
+
 def QCommitStyle(styles):
     question = inquirer.List('commit_style',
                              message='请选择commit message风格(首次使用配置，后续通过配置文件(~/.imitrc.ini)修改)',
@@ -205,3 +216,13 @@ def QCommitStyle(styles):
                              carousel=True
                              )
     return inquirer.prompt([question])['commit_style']
+
+
+def QConfirm(message):
+    """询问用户是否确认操作."""
+    questions = [
+        inquirer.Confirm('confirm',
+                         message=message,
+                         default=True)
+    ]
+    return inquirer.prompt(questions)

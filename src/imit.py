@@ -33,6 +33,8 @@ import docopt
 import os
 import sys
 
+import git
+
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))  # noqa
 import des
 import config
@@ -68,7 +70,6 @@ def GetCommitOption(args, commit_types, version_file_path, current_version):
         if not last_version is None and last_version != current_version:
             commit_option["version_index"] = 0
 
-
     option_handler.UpdateOptionFromArgs(commit_option, args, commit_types)
     option_handler.UpdateOptionFromInquirer(
         commit_option, version_file_path, commit_types
@@ -90,8 +91,23 @@ def EnvCheck():
     os.chdir(git_root_path)
 
     if not git_handler.StagedFiles():
-        print("No staged file, exit commit.")
-        exit(-1)
+        # 显示未暂存的文件列表
+        unstaged = git_handler.UnstagedFiles()
+        if unstaged:
+            print("未暂存的文件列表:")
+            for file in unstaged:
+                print("  " + file)
+            print()
+        else:
+            print("没有已暂存或未暂存的文件")
+            exit(0)
+
+        answer = commit_inquirer.QConfirm("检测到没有已暂存的改动，是否执行 git add * ?")
+        if answer["confirm"]:
+            git_handler.AddAll()
+        else:
+            print("No staged file, exit commit.")
+            exit(-1)
 
 
 def Config():
@@ -132,7 +148,8 @@ def main():
 
     version_processor = version_handler.VersionProcessor()
     version_file_path = version_processor.file_path
-    commit_option = GetCommitOption(args, commit_types, version_file_path, version_processor.CurrentVersion())
+    commit_option = GetCommitOption(
+        args, commit_types, version_file_path, version_processor.CurrentVersion())
     logging.debug("commit option: " + str(commit_option))
 
     git_handler.Handle(commit_option, version_file_path)

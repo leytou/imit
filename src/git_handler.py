@@ -27,17 +27,18 @@ def _Add(path):
     cmd = ['git', 'add', path]
     _GitCmd(cmd)
 
+
 def _Commit(msg):
     cmd = ['git', 'commit', '-m', msg]
     success, result = _GitCmd(cmd)
-    
+
     # 如果提交成功，清除临时保存的提交信息
     if success:
         config.RemoveKey('temp_commit_title')
         config.RemoveKey('temp_commit_why')
         config.RemoveKey('temp_commit_how')
         config.RemoveKey('temp_commit_influence')
-    
+
     return result
 
 
@@ -56,6 +57,7 @@ def _GenerateCommitMsg(msg_tags, msg_title, msg_fields):
             commit_msg += "\n" + field
     return commit_msg
 
+
 def _HasCommits():
     """Check if the repository has any commits."""
     try:
@@ -64,6 +66,7 @@ def _HasCommits():
         return True
     except:
         return False
+
 
 def _ChangedFiles(cmd):
     try:
@@ -96,6 +99,7 @@ def AllChangedFiles():
     cmd = ['git', 'diff', '--name-only', 'HEAD']
     return _ChangedFiles(cmd)
 
+
 def LastCommitVersion():
     if not _HasCommits():
         return None
@@ -115,9 +119,30 @@ def StagedFiles():
     return _ChangedFiles(cmd)
 
 
-def UnstaedFiles():
-    cmd = ['git', 'diff', '--name-only']
-    return _ChangedFiles(cmd)
+def UnstagedFiles():
+    """获取所有未暂存的文件，包括未追踪的新文件."""
+    # 获取已修改但未暂存的文件
+    modified_cmd = ['git', 'diff', '--name-only']
+    modified_files = _ChangedFiles(modified_cmd) or []
+
+    # 获取未追踪的文件
+    untracked_cmd = ['git', 'ls-files', '--others', '--exclude-standard']
+    untracked_files = _ChangedFiles(untracked_cmd) or []
+
+    # 合并两个列表并去重
+    all_unstaged = list(set(modified_files + untracked_files))
+    return all_unstaged
+
+
+def AddAll():
+    """Add all changes to git staging area."""
+    cmd = ['git', 'add', "*"]
+    success, _ = _GitCmd(cmd)
+    if not success:
+        print("添加文件失败")
+        exit(0)
+    else:
+        print("已添加所有文件到暂存区")
 
 
 def Handle(commit_option, version_file_path):
@@ -127,7 +152,8 @@ def Handle(commit_option, version_file_path):
 
     msg_tags = [commit_option['commit_type'],
                 version_str_updated, commit_option['jira_id']]
-    commit_msg = _GenerateCommitMsg(msg_tags, commit_option['commit_title'], {"why": commit_option.get('commit_why', None), "how": commit_option.get('commit_how', None), "influence": commit_option.get('commit_influence', None)})
+    commit_msg = _GenerateCommitMsg(msg_tags, commit_option['commit_title'], {"why": commit_option.get(
+        'commit_why', None), "how": commit_option.get('commit_how', None), "influence": commit_option.get('commit_influence', None)})
     logging.debug('commit msg: ' + commit_msg)
 
     _Add(version_file_path)
