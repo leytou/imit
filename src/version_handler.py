@@ -162,13 +162,17 @@ class ConanFile:
             if match:
                 version_str = match.group(1)
                 versions = version_str.split('.')
-                first_major = versions.pop(0) if len(versions) == 4 else None
-                v_list = ['major', 'minor', 'patch']
-                for i, v in enumerate(versions):
-                    if i < len(v_list):
-                        tag_num_dict[v_list[i]] = int(v)
-                if not first_major is None:
-                    tag_num_dict["major"] = f"{first_major}.{tag_num_dict['major']}"
+                if len(versions) <=3:
+                    v_list = ['major', 'minor', 'patch']
+                    for i, v in enumerate(versions):
+                        if i < len(v_list):
+                            tag_num_dict[v_list[i]] = int(v)
+                else:
+                    # 取最后一位作为patch，倒数第二位作为minor，其他的作为major
+                    major_part = '.'.join(versions[:-2])
+                    tag_num_dict['major'] = major_part
+                    tag_num_dict['minor'] = int(versions[-2])
+                    tag_num_dict['patch'] = int(versions[-1])
         return tag_num_dict
 
     def WriteToFile(self, version_dict):
