@@ -82,14 +82,14 @@ def _ChangedFiles(cmd):
 
 def GetGitRootPath(path):
     path = os.path.abspath(path)
-    if path == '/':
+    p = Path(path)
+    git_file = p / '.git'
+    if git_file.exists():
+        return str(p)
+    # If already at the root directory, return empty string
+    if p.parent == p:
         return ''
-
-    git_file = Path(path+'/.git')
-    if not (git_file.exists()):
-        return GetGitRootPath(os.path.dirname(path))
-    else:
-        return path
+    return GetGitRootPath(str(p.parent))
 
 
 def AllChangedFiles():
