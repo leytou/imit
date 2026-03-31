@@ -181,17 +181,34 @@ def RunPreCommit():
     """
     import shutil
     import subprocess
+    import commit_inquirer
 
     pre_commit_config = os.path.join(os.getcwd(), ".pre-commit-config.yaml")
     if not os.path.exists(pre_commit_config):
         logging.debug("未找到.pre-commit-config.yaml，跳过pre-commit检查")
         return True
 
-    # 检查pre-commit是否已安装
+    # 检查pre-commit命令是否可用
     if not shutil.which("pre-commit"):
-        print("错误: 检测到.pre-commit-config.yaml但未安装pre-commit")
+        print("警告: 检测到.pre-commit-config.yaml但系统未安装pre-commit")
         print("请通过 pip install pre-commit 安装")
-        return False
+        print("跳过pre-commit检查")
+        return True
+
+    # 检查pre-commit是否已安装到git hooks
+    pre_commit_hook = os.path.join(os.getcwd(), ".git", "hooks", "pre-commit")
+    if not os.path.exists(pre_commit_hook):
+        print("检测到.pre-commit-config.yaml但pre-commit未安装到git hooks")
+        answer = commit_inquirer.QConfirm("是否安装pre-commit到git hooks? (pre-commit install)")
+        if answer["confirm"]:
+            result = subprocess.run(["pre-commit", "install"], cwd=os.getcwd())
+            if result.returncode != 0:
+                print("pre-commit安装失败")
+                return False
+            print("pre-commit已安装到git hooks")
+        else:
+            print("跳过pre-commit检查")
+            return True
 
     print("检测到.pre-commit-config.yaml，正在执行pre-commit检查...")
     staged_files = StagedFiles() or []
