@@ -13,6 +13,50 @@ import config
 import version_handler
 
 
+# 自定义List渲染器，支持j/k键导航
+from inquirer.render.console._list import List as InquirerList
+from inquirer import prompt as original_prompt
+from inquirer.render.console import ConsoleRender
+
+
+class CustomList(InquirerList):
+    """支持j/k键进行上下选择的自定义List."""
+
+    def process_input(self, pressed):
+        question = self.question
+        # 添加j键支持（向下）
+        if pressed == "j":
+            if question.carousel and self.current == len(question.choices) - 1:
+                self.current = 0
+            else:
+                self.current = min(len(self.question.choices) - 1, self.current + 1)
+            return
+        # 添加k键支持（向上）
+        if pressed == "k":
+            if question.carousel and self.current == 0:
+                self.current = len(question.choices) - 1
+            else:
+                self.current = max(0, self.current - 1)
+            return
+        # 其他按键使用父类处理
+        return super().process_input(pressed)
+
+
+# 创建自定义渲染器
+class CustomConsoleRender(ConsoleRender):
+    def render_factory(self, question_type):
+        if question_type == "list":
+            return CustomList
+        return super().render_factory(question_type)
+
+
+def custom_prompt(questions, render=None, answers=None, **kwargs):
+    """使用自定义渲染器的prompt函数."""
+    if render is None:
+        render = CustomConsoleRender()
+    return original_prompt(questions, render=render, answers=answers, **kwargs)
+
+
 def _MsgValidation(answers, current, nullable):
     if nullable:
         return True
@@ -24,7 +68,7 @@ def _MsgValidation(answers, current, nullable):
 
 def QType(types):
     question = inquirer.List("commit_type", message="请选择commit类型", choices=types, carousel=True)
-    return inquirer.prompt([question])
+    return custom_prompt([question])
 
 
 def QVersion(tags, commit_type, version_file_path):
@@ -50,7 +94,7 @@ def QVersion(tags, commit_type, version_file_path):
         carousel=True,
         default=tags_index_tagged[index][1],
     )
-    return inquirer.prompt([question])
+    return custom_prompt([question])
 
 
 def _GetActualSize(s):
@@ -129,7 +173,7 @@ def QJiraId(from_server=False):
         )
 
         question = inquirer.List("jira_id", message="请选择JIRA ID", choices=choices, carousel=True)
-        answer = inquirer.prompt([question])
+        answer = custom_prompt([question])
         if not answer:  # 用户按Ctrl+C取消
             return {"jira_id": ""}
 
@@ -203,7 +247,7 @@ def QServerJiraToken():
             "api_token", message="请输入JIRA API token(JIRA右上角-用户信息-个人访问令牌)", validate=lambda _, x: x != ""
         ),
     ]
-    return inquirer.prompt(question)
+    return custom_prompt(question)
 
 
 def QCommitStyle(styles):
@@ -213,10 +257,11 @@ def QCommitStyle(styles):
         choices=styles,
         carousel=True,
     )
-    return inquirer.prompt([question])["commit_style"]
+    return custom_prompt([question])["commit_style"]
 
 
 def QConfirm(message):
     """询问用户是否确认操作."""
     questions = [inquirer.Confirm("confirm", message=message, default=True)]
-    return inquirer.prompt(questions)
+    return custom_prompt(questions)
+
