@@ -57,9 +57,7 @@ def UpdateOptionFromInquirer(commit_option, version_file_path, commit_types):
         logging.debug("option : " + str(answer))
 
     if "version_index" not in commit_option:
-        answer = commit_inquirer.QVersion(
-            version_dict.keys(), commit_option["commit_type"], version_file_path
-        )
+        answer = commit_inquirer.QVersion(version_dict.keys(), commit_option["commit_type"], version_file_path)
         commit_option.update(answer)
         logging.debug("option : " + str(answer))
 
