@@ -10,11 +10,11 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))  # noqa
 import config
 import des
 
-jira_filter = 'assignee = currentUser() AND resolution = Unresolved AND status != 测试中 order by lastViewed DESC',
+jira_filter = ("assignee = currentUser() AND resolution = Unresolved AND status != 测试中 order by lastViewed DESC",)
 
-issues_config_key = 'issues'
-server_config_key = 'server'
-api_token_config_key = 'api_token'
+issues_config_key = "issues"
+server_config_key = "server"
+api_token_config_key = "api_token"
 
 
 def GetJiraIssuesFromServer():
@@ -27,16 +27,13 @@ def GetJiraIssuesFromServer():
     server = des.DesDecrypt(server_en)
     api_token = des.DesDecrypt(api_token_en)
     try:
-        jira = JIRA(server=server,
-                    token_auth=api_token,
-                    timeout=5)
+        jira = JIRA(server=server, token_auth=api_token, timeout=5)
     except Exception as e:
         print("连接JIRA失败: %s，请检查JIRA网站路径/API token配置是否正确" % e)
         return []
 
-    issues_list = [(issues.key, issues.fields.summary)
-                   for issues in jira.search_issues(jira_filter)]
-    config.Write(issues_config_key, str(issues_list).strip('[]'))
+    issues_list = [(issues.key, issues.fields.summary) for issues in jira.search_issues(jira_filter)]
+    config.Write(issues_config_key, str(issues_list).strip("[]"))
     return issues_list
 
 

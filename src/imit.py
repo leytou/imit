@@ -27,7 +27,6 @@ Options:
     --log_level=<log_level>     set log level: notset,debug,info,warn,error,fatal,critical
 """
 
-
 import logging
 import docopt
 import os
@@ -49,7 +48,6 @@ from pprint import pprint
 def InitLogger(args):
     log_level = args["--log_level"]
     if log_level is None:
-
         log_level = "info"
 
     logging.basicConfig(
@@ -71,9 +69,7 @@ def GetCommitOption(args, commit_types, version_file_path, current_version):
             commit_option["version_index"] = 0
 
     option_handler.UpdateOptionFromArgs(commit_option, args, commit_types)
-    option_handler.UpdateOptionFromInquirer(
-        commit_option, version_file_path, commit_types
-    )
+    option_handler.UpdateOptionFromInquirer(commit_option, version_file_path, commit_types)
 
     return commit_option
 
@@ -108,6 +104,10 @@ def EnvCheck():
         else:
             print("No staged file, exit commit.")
             exit(-1)
+
+    # 执行pre-commit检查
+    if not git_handler.RunPreCommit():
+        exit(-1)
 
 
 def Config():
@@ -148,8 +148,7 @@ def main():
 
     version_processor = version_handler.VersionProcessor()
     version_file_path = version_processor.file_path
-    commit_option = GetCommitOption(
-        args, commit_types, version_file_path, version_processor.CurrentVersion())
+    commit_option = GetCommitOption(args, commit_types, version_file_path, version_processor.CurrentVersion())
     logging.debug("commit option: " + str(commit_option))
 
     git_handler.Handle(commit_option, version_file_path)
