@@ -33,12 +33,12 @@ def GetJiraIssuesFromServer():
         return []
 
     issues_list = [(issues.key, issues.fields.summary) for issues in jira.search_issues(jira_filter)]
-    config.Write(issues_config_key, str(issues_list).strip("[]"))
+    config.WriteCache(issues_config_key, str(issues_list).strip("[]"))
     return issues_list
 
 
 def GetJiraIssuesFromConfig():
-    issues_str = config.Get(issues_config_key)
+    issues_str = config.GetCache(issues_config_key)
     if not issues_str:
         return []
 

@@ -207,7 +207,7 @@ def QJiraId(from_server=False):
 
 def QMsg(field, skippable):
     # 尝试从配置文件恢复上次未成功提交的信息
-    saved_msg = config.Get(f"temp_commit_{field}")
+    saved_msg = config.GetCache(f"temp_commit_{field}")
     default_msg = ""
 
     if saved_msg:
@@ -224,7 +224,7 @@ def QMsg(field, skippable):
                 return {"commit_%s" % field: ""}
             elif str:
                 # 保存当前输入的信息到配置文件
-                config.Write(f"temp_commit_{field}", str)
+                config.WriteCache(f"temp_commit_{field}", str)
                 return {"commit_%s" % field: str}
             else:
                 # 如果不可跳过且用户没有输入，提示用户重新输入

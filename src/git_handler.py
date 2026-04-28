@@ -34,10 +34,10 @@ def _Commit(msg):
 
     # 如果提交成功，清除临时保存的提交信息
     if success:
-        config.RemoveKey("temp_commit_title")
-        config.RemoveKey("temp_commit_why")
-        config.RemoveKey("temp_commit_how")
-        config.RemoveKey("temp_commit_influence")
+        config.RemoveCache("temp_commit_title")
+        config.RemoveCache("temp_commit_why")
+        config.RemoveCache("temp_commit_how")
+        config.RemoveCache("temp_commit_influence")
 
     return result
 
